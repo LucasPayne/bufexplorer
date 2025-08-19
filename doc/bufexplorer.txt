@@ -616,7 +616,7 @@ The default is to show directories.
 To control whether to show "No Name" buffers or not, use: >
   let g:bufExplorerShowNoName=0        " Do not "No Name" buffers.
   let g:bufExplorerShowNoName=1        " Show "No Name" buffers.
-The default is to NOT show "No Name buffers.
+The default is to NOT show "No Name" buffers.
 
                                                 *g:bufExplorerShowRelativePath*
 To control whether to show paths relative to the current directory, use: >

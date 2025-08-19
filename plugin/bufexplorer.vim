@@ -535,11 +535,6 @@ function! s:ShouldIgnore(buf)
         return 1
     endif
 
-    " Ignore buffers with no name.
-    if empty(bufname(a:buf)) == 1
-        return 1
-    endif
-
     " Ignore the BufExplorer buffer.
     if fnamemodify(bufname(a:buf), ":t") == s:name
         return 1
