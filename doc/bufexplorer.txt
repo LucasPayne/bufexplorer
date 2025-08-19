@@ -1,7 +1,7 @@
-*bufexplorer.txt*              Buffer Explorer       Last Change: 01 Jul 2025
+*bufexplorer.txt*              Buffer Explorer       Last Change: 19 Aug 2025
 
 Buffer Explorer                                *buffer-explorer* *bufexplorer*
-                                Version 7.12.1
+                                Version 7.13.0
 
 Plugin for easily exploring (or browsing) Vim|:buffers|.
 
@@ -693,6 +693,10 @@ The default is 1.
 ===============================================================================
 CHANGE LOG                                              *bufexplorer-changelog*
 
+7.13.0   August 19, 2025
+     - Thanks to Dr. Michael Henry for another patch.
+       https://github.com/jlanzarotta/bufexplorer/pull/137
+       * Stop ignoring "No Name" buffers in MRU tracking.
 7.12.1   July 01, 2025
      What's Changed
      - Thanks to Dr. Michael Henry for another patch.
