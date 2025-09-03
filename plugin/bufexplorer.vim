@@ -1011,12 +1011,14 @@ function! s:CalculateBufferDetails(buf)
             let cwd = '.'
             let shellName = fnamemodify(rawpath, ':t')
             let pid = -1
+            let status = "fail"
             let commandString = ""
             if exists('*term_getjob') && exists('*job_info')
                 let job = term_getjob(buf.bufNbr)
                 if job != v:null
                     let pid = job_info(job).process
                     let cmd = job_info(job).cmd
+                    let status = job_info(job).status
                     if len(cmd) == 0
                         let commandString = "[empty terminal]"
                     else
@@ -1048,7 +1050,16 @@ function! s:CalculateBufferDetails(buf)
         if commandString == ""
             let buf.name = name
         else
-            let buf.name = pid . " " . commandString
+            if pid > 0
+                if status == "run"
+                    let stat = trim(system("ps ".pid." | tail -1 | awk '{print $3}'"))
+                    let buf.name = pid . " " . stat . " " . commandString
+                else
+                    let buf.name = pid . " " . "XXX" . " " . commandString
+                endif
+            else
+                let buf.name = pid . " " . commandString
+            endif
         endif
         let buf.homereldir = fnamemodify(slashed_cwd, ':~:h')
         let buf.homerelpath = fnamemodify(buf.fullpath, ':~')
