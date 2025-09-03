@@ -890,7 +890,7 @@ endfunction
 
 " GetHelpStatus {{{2
 function! s:GetHelpStatus()
-    let ret = '" Sorted by '.((g:bufExplorerReverseSort == 1) ? "reverse " : "").g:bufExplorerSortBy
+    let ret = '[Sorted by '.((g:bufExplorerReverseSort == 1) ? "reverse " : "").g:bufExplorerSortBy
     let ret .= ' | '.((g:bufExplorerFindActive == 0) ? "Don't " : "")."Locate buffer"
     let ret .= ((g:bufExplorerShowUnlisted == 0) ? "" : " | Show unlisted")
     let ret .= ((g:bufExplorerShowTabBuffer == 0) ? "" : " | Show buffers/tab")
@@ -901,6 +901,7 @@ function! s:GetHelpStatus()
     endif
     let ret .= ((g:bufExplorerSplitOutPathName == 0) ? "Whole" : "Split")." path"
     let ret .= ((g:bufExplorerShowTerminal == 0) ? "" : " | Show terminal")
+    let ret .= ']'
 
     return ret
 endfunction
@@ -915,37 +916,36 @@ function! s:CreateHelp()
     let header = []
 
     if g:bufExplorerDetailedHelp == 1
-        call add(header, '" Buffer Explorer ('.g:bufexplorer_version.')')
-        call add(header, '" --------------------------')
-        call add(header, '" <F1> : toggle this help')
-        call add(header, '" <enter> or o or Mouse-Double-Click : open buffer under cursor')
-        call add(header, '" <shift-enter> or t : open buffer in another tab')
-        call add(header, '" a : toggle find active buffer')
-        call add(header, '" b : Fast buffer switching with b<any bufnum>')
-        call add(header, '" B : toggle showing buffers only on their MRU tabs')
-        call add(header, '" d : delete buffer')
-        call add(header, '" D : wipe buffer')
-        call add(header, '" F : open buffer in another window above the current')
-        call add(header, '" f : open buffer in another window below the current')
-        call add(header, '" O : open buffer in original window')
-        call add(header, '" p : toggle splitting of path into name + dir')
-        call add(header, '" q : quit')
-        call add(header, '" r : reverse sort')
-        call add(header, '" R : toggle showing relative paths')
-        call add(header, '" s : cycle thru "sort by" fields '.string(s:sort_by).'')
-        call add(header, '" S : reverse cycle thru "sort by" fields')
-        call add(header, '" T : toggle showing all buffers/only buffers used on this tab')
-        call add(header, '" u : toggle showing unlisted buffers')
-        call add(header, '" V : open buffer in another window on the left of the current')
-        call add(header, '" v : open buffer in another window on the right of the current')
-        call add(header, '" X : toggle showing terminal buffers')
+        call add(header, '-------------------------------------------------------------')
+        call add(header, '<enter> or o or Mouse-Double-Click : open buffer under cursor')
+        call add(header, '<shift-enter> or t : open buffer in another tab')
+        call add(header, 'a : toggle find active buffer')
+        call add(header, 'b : Fast buffer switching with b<any bufnum>')
+        call add(header, 'B : toggle showing buffers only on their MRU tabs')
+        call add(header, 'd : delete buffer')
+        call add(header, 'D : wipe buffer')
+        call add(header, 'F : open buffer in another window above the current')
+        call add(header, 'f : open buffer in another window below the current')
+        call add(header, 'O : open buffer in original window')
+        call add(header, 'p : toggle splitting of path into name + dir')
+        call add(header, 'q : quit')
+        call add(header, 'r : reverse sort')
+        call add(header, 'R : toggle showing relative paths')
+        call add(header, 's : cycle thru "sort by" fields '.string(s:sort_by).'')
+        call add(header, 'S : reverse cycle thru "sort by" fields')
+        call add(header, 'T : toggle showing all buffers/only buffers used on this tab')
+        call add(header, 'u : toggle showing unlisted buffers')
+        call add(header, 'V : open buffer in another window on the left of the current')
+        call add(header, 'v : open buffer in another window on the right of the current')
+        call add(header, 'X : toggle showing terminal buffers')
+        call add(header, '-------------------------------------------------------------')
     else
-        call add(header, '" Press <F1> for Help')
+        "call add(header, '')
     endif
 
     if (!exists("b:displayMode") || b:displayMode != "winmanager") || (b:displayMode == "winmanager" && g:bufExplorerDetailedHelp == 1)
         call add(header, s:GetHelpStatus())
-        call add(header, '"=')
+        call add(header, '')
     endif
 
     let s:firstBufferLine = len(header) + 1
