@@ -1492,9 +1492,18 @@ function! s:RemoveBuffer(mode)
         endif
 
     endif
-
+    
+    " Always force if the target is a terminal buffer.
+    let delete_buffer_mode = mode
+    if buf.isterminal
+        if mode == "delete"
+            let delete_buffer_mode = "force_delete"
+        elseif mode == "wipe"
+            let delete_buffer_mode = "force_wipe"
+        endif
+    endif
     " Okay, everything is good, delete or wipe the buffer.
-    call s:DeleteBuffer(bufNbr, mode)
+    call s:DeleteBuffer(bufNbr, delete_buffer_mode)
 
     " Reactivate winmanager autocommand activity.
     if exists("b:displayMode") && b:displayMode == "winmanager"
