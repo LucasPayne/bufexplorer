@@ -1004,15 +1004,23 @@ function! s:CalculateBufferDetails(buf)
             let [cwd, pidStr, shellPath] = termNameParts[1:3]
             let pid = str2nr(pidStr)
             let shellName = fnamemodify(shellPath, ':t')
+            let commandString = ""
         else
             " Default to Vim's current working directory.
             let cwd = '.'
             let shellName = fnamemodify(rawpath, ':t')
             let pid = -1
+            let commandString = ""
             if exists('*term_getjob') && exists('*job_info')
                 let job = term_getjob(buf.bufNbr)
                 if job != v:null
                     let pid = job_info(job).process
+                    let cmd = job_info(job).cmd
+                    if len(cmd) == 0
+                        let commandString = "[empty terminal]"
+                    else
+                        let commandString = join(cmd, ' ')
+                    endif
                 endif
             endif
         endif
@@ -1036,7 +1044,11 @@ function! s:CalculateBufferDetails(buf)
         let slashed_cwd = fnamemodify(cwd, ':p')
         let buf.fullpath = slashed_cwd . name
         let buf.fulldir = fnamemodify(slashed_cwd, ':h')
-        let buf.name = name
+        if commandString == ""
+            let buf.name = name
+        else
+            let buf.name = pid . " " . commandString
+        endif
         let buf.homereldir = fnamemodify(slashed_cwd, ':~:h')
         let buf.homerelpath = fnamemodify(buf.fullpath, ':~')
         let buf.relativedir = fnamemodify(slashed_cwd, ':~:.:h')
@@ -1961,7 +1973,7 @@ endfunction
 
 " Default values {{{2
 call s:Set("g:bufExplorerColumns", BufExplorer_defaultColumns()) " Configurable list of column names for the buffer list.
-call s:Set("g:bufExplorerDisableDefaultKeyMapping", 0)  " Do not disable default key mappings.
+call s:Set("g:bufExplorerDisableDefaultKeyMapping", 1)  " Disable default key mappings.
 call s:Set("g:bufExplorerDefaultAction", 'current')     " Default action for `:BufExplorer` with no args.
 call s:Set("g:bufExplorerDefaultHelp", 1)               " Show default help?
 call s:Set("g:bufExplorerDetailedHelp", 0)              " Show detailed help?
@@ -1999,3 +2011,4 @@ if !hasmapto('BufExplorerVerticalSplit') && g:bufExplorerDisableDefaultKeyMappin
 endif
 
 " vim:ft=vim foldmethod=marker sw=4
+"
