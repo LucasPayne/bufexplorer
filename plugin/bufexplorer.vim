@@ -1474,12 +1474,9 @@ function! s:RemoveBuffer(mode)
     endif
     let buf = s:raw_buffer_listing[bufNbr]
 
-    if !forced && (buf.isterminal || getbufvar(bufNbr, '&modified'))
-        if buf.isterminal
-            let msg = "Buffer " . bufNbr . " is a terminal"
-        else
-            let msg = "No write since last change for buffer " . bufNbr
-        endif
+    if !forced && getbufvar(bufNbr, '&modified')
+        let msg = "No write since last change for buffer " . bufNbr
+        "
         " Calling confirm() requires Vim built with dialog option.
         if !has("dialog_con") && !has("dialog_gui")
             call s:Error(msg . "; cannot remove without 'force'")
