@@ -248,6 +248,7 @@ let s:running = 0
 let s:sort_by = ["number", "name", "fullpath", "mru", "extension"]
 let s:didSplit = 0
 let s:view = v:null
+let g:bufexplorer_from_bufnr = -1
 
 " Setup the autocommands that handle stuff. {{{2
 augroup BufExplorer
@@ -648,6 +649,7 @@ function! s:Cleanup()
 
     let s:running = 0
     let s:didSplit = 0
+    let g:bufexplorer_from_bufnr = -1
 
     delmarks!
 endfunction
@@ -741,6 +743,11 @@ function! BufExplorer(...)
     " If this is not v:null when bufexplorer is closed, the winrestview will
     " be used to restore this view.
     let s:view = winsaveview()
+    " Save the buffer number globally.
+    " This can be used by other UI config (such as in vimrc) to display
+    " context, such as [BufExplorer from {name}] instead of [BufExplorer] in
+    " the tab line.
+    let g:bufexplorer_from_bufnr = bufnr()
 
     let [tabNbr, winNbr] = s:FindBufExplorer()
     if tabNbr > 0
@@ -814,6 +821,9 @@ function! BufExplorer(...)
 
     " Record BufExplorer's buffer number.
     let s:bufExplorerBuffer = bufnr('%')
+    " Set b:bufexplorer to denote this as a bufexplorer buffer.
+    " External scripts can use getbufvar to test this.
+    let b:bufexplorer = 1
 
     call s:DisplayBufferList()
 
