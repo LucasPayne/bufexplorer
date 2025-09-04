@@ -826,6 +826,11 @@ function! s:MapKeys()
     nnoremap <silent> <buffer> <Plug>(BufExplorer_ToggleShowTerminal)       :call <SID>ToggleShowTerminal()<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_ToggleShowUnlisted)       :call <SID>ToggleShowUnlisted()<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_ToggleSplitOutPathName)   :call <SID>ToggleSplitOutPathName()<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_JobSignalSTOP)            :call <SID>JobSignal("STOP")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_JobSignalCONT)            :call <SID>JobSignal("CONT")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_JobSignalTERM)            :call <SID>JobSignal("TERM")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_JobSignalKILL)            :call <SID>JobSignal("KILL")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_JobSignalHUP)             :call <SID>JobSignal("HUP")<CR>
 
     if exists("b:displayMode") && b:displayMode == "winmanager"
         nnoremap <buffer> <silent> <tab> :call <SID>SelectBuffer()<CR>
@@ -834,14 +839,14 @@ function! s:MapKeys()
     nmap <nowait> <buffer> <2-leftmouse>    <Plug>(BufExplorer_OpenBuffer)
     nmap <nowait> <buffer> <CR>             <Plug>(BufExplorer_OpenBuffer)
     nmap <nowait> <buffer> i             <Plug>(BufExplorer_ToggleHelp)
-    nmap <nowait> <buffer> <s-cr>           <Plug>(BufExplorer_OpenBufferTab)
+    nmap <nowait> <buffer> c           <Plug>(BufExplorer_OpenBufferTab)
     nmap <nowait> <buffer> <M-p>a                <Plug>(BufExplorer_ToggleFindActive)
     nmap <nowait> <buffer> <M-p>b                <Plug>(BufExplorer_OpenBufferAsk)
     nmap <nowait> <buffer> <M-p>B                <Plug>(BufExplorer_ToggleOnlyOneTab)
     nmap <nowait> <buffer> d                <Plug>(BufExplorer_BufferDelete)
     nmap <nowait> <buffer> D                <Plug>(BufExplorer_BufferWipe)
-    nmap <nowait> <buffer> <M-p>f                <Plug>(BufExplorer_OpenBufferSplitBelow)
-    nmap <nowait> <buffer> <M-p>F                <Plug>(BufExplorer_OpenBufferSplitAbove)
+    nmap <nowait> <buffer> o                <Plug>(BufExplorer_OpenBufferSplitBelow)
+    nmap <nowait> <buffer> O                <Plug>(BufExplorer_OpenBufferSplitAbove)
     nmap <nowait> <buffer> <M-p>o                <Plug>(BufExplorer_OpenBuffer)
     nmap <nowait> <buffer> <M-p>O                <Plug>(BufExplorer_OpenBufferOriginalWindow)
     nmap <nowait> <buffer> <M-p>p                <Plug>(BufExplorer_ToggleSplitOutPathName)
@@ -850,12 +855,16 @@ function! s:MapKeys()
     nmap <nowait> <buffer> <M-p>R                <Plug>(BufExplorer_ToggleShowRelativePath)
     nmap <nowait> <buffer> <M-p>s                <Plug>(BufExplorer_SortByNext)
     nmap <nowait> <buffer> <M-p>S                <Plug>(BufExplorer_SortByPrev)
-    nmap <nowait> <buffer> <M-p>t                <Plug>(BufExplorer_OpenBufferTab)
     nmap <nowait> <buffer> <M-p>T                <Plug>(BufExplorer_ToggleShowTabBuffer)
     nmap <nowait> <buffer> <M-p>u                <Plug>(BufExplorer_ToggleShowUnlisted)
-    nmap <nowait> <buffer> <M-p>v                <Plug>(BufExplorer_OpenBufferSplitRight)
-    nmap <nowait> <buffer> <M-p>V                <Plug>(BufExplorer_OpenBufferSplitLeft)
+    nmap <nowait> <buffer> A                <Plug>(BufExplorer_OpenBufferSplitRight)
+    nmap <nowait> <buffer> I                <Plug>(BufExplorer_OpenBufferSplitLeft)
     nmap <nowait> <buffer> <M-p>X                <Plug>(BufExplorer_ToggleShowTerminal)
+    nmap <nowait> <buffer> xx                <Plug>(BufExplorer_JobSignalSTOP)
+    nmap <nowait> <buffer> xc                <Plug>(BufExplorer_JobSignalCONT)
+    nmap <nowait> <buffer> xq                <Plug>(BufExplorer_JobSignalTERM)
+    nmap <nowait> <buffer> xk                <Plug>(BufExplorer_JobSignalKILL)
+    nmap <nowait> <buffer> xh                <Plug>(BufExplorer_JobSignalHUP)
 
     for k in ["G", "n", "N", "L", "M", "H"]
         execute "nnoremap <buffer> <silent>" k ":keepjumps normal!" k."<CR>"
@@ -919,7 +928,7 @@ function! s:CreateHelp()
         call add(header, '-------------------------------------------------------------')
         call add(header, 'i: Toggle help menu')
         call add(header, '<enter> or o or Mouse-Double-Click : open buffer under cursor')
-        call add(header, '<shift-enter> or t : open buffer in another tab')
+        call add(header, 'o: open buffer in another tab')
         call add(header, 'd : delete buffer')
         call add(header, 'D : wipe buffer')
         call add(header, 'q : quit')
@@ -927,8 +936,8 @@ function! s:CreateHelp()
         call add(header, '    a : toggle find active buffer')
         call add(header, '    b : Fast buffer switching with b<any bufnum>')
         call add(header, '    B : toggle showing buffers only on their MRU tabs')
-        call add(header, '    F : open buffer in another window above the current')
-        call add(header, '    f : open buffer in another window below the current')
+        call add(header, '    - : open buffer in another window above the current')
+        call add(header, '    _ : open buffer in another window below the current')
         call add(header, '    O : open buffer in original window')
         call add(header, '    p : toggle splitting of path into name + dir')
         call add(header, '    r : reverse sort')
@@ -937,8 +946,8 @@ function! s:CreateHelp()
         call add(header, '    S : reverse cycle thru "sort by" fields')
         call add(header, '    T : toggle showing all buffers/only buffers used on this tab')
         call add(header, '    u : toggle showing unlisted buffers')
-        call add(header, '    V : open buffer in another window on the left of the current')
-        call add(header, '    v : open buffer in another window on the right of the current')
+        call add(header, '    \\ : open buffer in another window on the right of the current')
+        call add(header, '    | : open buffer in another window on the left of the current')
         call add(header, '    X : toggle showing terminal buffers')
         call add(header, '-------------------------------------------------------------')
     else
@@ -1345,6 +1354,49 @@ function! s:MakeLines(table)
         call add(lines, join(row, ' '))
     endfor
     return lines
+endfunction
+
+" Valid signals:
+"     "STOP"
+"     "CONT"
+"     "TERM"
+"     "KILL"
+"     "HUP"
+function! s:JobSignal(signal)
+    let bufNbr = s:GetBufNbrAtCursor()
+    if bufNbr == 0
+        call s:Error("JobSignal: failed to get buffer")
+        return
+    endif
+    let buf = s:raw_buffer_listing[bufNbr]
+    if !buf.isterminal
+        call s:Error("JobSignal: buffer under cursor is not a terminal")
+        return
+    endif
+    if !exists('*term_getjob') || !exists('*job_info')
+        call s:Error("JobSignal: term_getjob/job_info are not supported, check vim version")
+        return
+    endif
+    let job = term_getjob(buf.bufNbr)
+    if job == v:null
+        call s:Error("JobSignal: term_getjob failed...")
+        return
+    endif
+    let pid = job_info(job).process
+    if pid < 0
+        call s:Error("JobSignal: failed to get valid pid (pid returned: ".pid.")...")
+        return
+    endif
+    
+    let kill_command = "kill -".a:signal." ".pid
+    call system(kill_command)
+    if v:shell_error != 0
+        echomsg "Failed: ".kill_command
+    else
+        echomsg "Success: ".kill_command
+    endif
+
+    call BufExplorer_Refresh()
 endfunction
 
 " SelectBuffer {{{2
