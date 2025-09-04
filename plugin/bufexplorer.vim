@@ -93,35 +93,72 @@ if v:version < 704
     finish
 endif
 
-let s:use_bbye_commands = 0
-
-function! s:UseBbyeBufferCommands()
-    return g:loaded_bbye && s:use_bbye_commands
+let s:does_buffer_deletion_keep_window = 1
+function! s:DoesBufferDeletionKeepWindow()
+    "return s:does_buffer_deletion_keep_window && g:loaded_bbye
+    return s:does_buffer_deletion_keep_window
 endfunction
 
+function! s:VimCommandDeleteBuffer(mode, bufNbr)
+    " Easier: Assume the buffer is only open in one window, if any.
+    let buftab = -1
+    let bufwin = -1
+    for t in range(1, tabpagenr('$'))
+        let w = 1
+        for b in tabpagebuflist(t)
+            if b == a:bufNbr
+                let buftab = t
+                let bufwin = w
+                break
+            endif
+            let w += 1
+        endfor
+    endfor
+    let commands = {
+        \ 'delete' : 'bdelete',
+        \ 'force_delete' : 'bdelete!',
+        \ 'wipe' : 'bwipe',
+        \ 'force_wipe' : 'bwipe!',
+        \}
+    if bufwin > 0
+        let curtab = tabpagenr()
+        let curwin = winnr()
+        let view = winsaveview()
+        execute 'keepjumps ' . buftab . 'tabnext'
+        execute 'keepjumps ' . bufwin . 'wincmd w'
+        bprevious
+        execute commands[a:mode] a:bufNbr
+        enew
+        execute 'keepjumps ' . curtab . 'tabnext'
+        execute 'keepjumps ' . curwin . 'wincmd w'
+        call winrestview(view)
+    else
+        execute commands[a:mode] a:bufNbr
+    endif
+endfunction
 function! s:DeleteCommand()
-    if s:UseBbyeBufferCommands()
+    if s:DoesBufferDeletionKeepWindow()
         return "Bdelete"
     else
         return "bdelete"
     endif
 endfunction
 function! s:ForceDeleteCommand()
-    if s:UseBbyeBufferCommands()
+    if s:DoesBufferDeletionKeepWindow()
         return "Bdelete!"
     else
         return "bdelete!"
     endif
 endfunction
 function! s:WipeCommand()
-    if s:UseBbyeBufferCommands()
+    if s:DoesBufferDeletionKeepWindow()
         return "Bwipe"
     else
         return "bwipe"
     endif
 endfunction
 function! s:ForceWipeCommand()
-    if s:UseBbyeBufferCommands()
+    if s:DoesBufferDeletionKeepWindow()
         return "Bwipe!"
     else
         return "bwipe!"
@@ -1668,13 +1705,13 @@ function! s:DeleteBuffer(bufNbr, mode)
     try
         " Wipe/Delete buffer from Vim.
         if a:mode == "wipe"
-            execute "silent ".s:WipeCommand() a:bufNbr
+            call s:VimCommandDeleteBuffer("wipe", a:bufNbr)
         elseif a:mode == "force_wipe"
-            execute "silent ".s:ForceWipeCommand() a:bufNbr
+            call s:VimCommandDeleteBuffer("force_wipe", a:bufNbr)
         elseif a:mode == "force_delete"
-            execute "silent ".s:ForceDeleteCommand() a:bufNbr
+            call s:VimCommandDeleteBuffer("force_delete", a:bufNbr)
         else
-            execute "silent ".s:DeleteCommand() a:bufNbr
+            call s:VimCommandDeleteBuffer("delete", a:bufNbr)
         endif
     catch
         call s:Error(v:exception)
