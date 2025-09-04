@@ -93,6 +93,41 @@ if v:version < 704
     finish
 endif
 
+let s:use_bbye_commands = 1
+
+function! s:UseBbyeBufferCommands()
+    return g:loaded_bbye && s:use_bbye_commands
+endfunction
+
+function! s:DeleteCommand()
+    if s:UseBbyeBufferCommands()
+        return "Bdelete"
+    else
+        return "bdelete"
+    endif
+endfunction
+function! s:ForceDeleteCommand()
+    if s:UseBbyeBufferCommands()
+        return "Bdelete!"
+    else
+        return "bdelete!"
+    endif
+endfunction
+function! s:WipeCommand()
+    if s:UseBbyeBufferCommands()
+        return "Bwipe"
+    else
+        return "bwipe"
+    endif
+endfunction
+function! s:ForceWipeCommand()
+    if s:UseBbyeBufferCommands()
+        return "Bwipe!"
+    else
+        return "bwipe!"
+    endif
+endfunction
+
 " Command actions {{{2
 let s:actions = [
         \ 'current',
@@ -1624,13 +1659,13 @@ function! s:DeleteBuffer(bufNbr, mode)
     try
         " Wipe/Delete buffer from Vim.
         if a:mode == "wipe"
-            execute "silent bwipe" a:bufNbr
+            execute "silent ".s:WipeCommand() a:bufNbr
         elseif a:mode == "force_wipe"
-            execute "silent bwipe!" a:bufNbr
+            execute "silent ".s:ForceWipeCommand() a:bufNbr
         elseif a:mode == "force_delete"
-            execute "silent bdelete!" a:bufNbr
+            execute "silent ".s:ForceDeleteCommand() a:bufNbr
         else
-            execute "silent bdelete" a:bufNbr
+            execute "silent ".s:DeleteCommand() a:bufNbr
         endif
     catch
         call s:Error(v:exception)
