@@ -1606,6 +1606,10 @@ function! s:SelectBuffer(...)
             else
                 " Use BufExplorer window for the buffer.
                 execute "keepjumps keepalt silent b!" bufNbr
+                if s:view != v:null
+                    call winrestview(s:view)
+                    let s:view = v:null
+                endif
             endif
         endif
 
