@@ -814,7 +814,8 @@ function! s:MapKeys()
     nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitBelow)     :call <SID>SelectBuffer("split", "sb")<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitLeft)      :call <SID>SelectBuffer("split", "vl")<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitRight)     :call <SID>SelectBuffer("split", "vr")<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferTab)            :call <SID>SelectBuffer("tab")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferTabRight)            :call <SID>SelectBuffer("tab-right")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferTabLeft)            :call <SID>SelectBuffer("tab-left")<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_SortByNext)               :call <SID>SortSelect()<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_SortByPrev)               :call <SID>ReverseSortSelect()<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_ToggleFindActive)         :call <SID>ToggleFindActive()<CR>
@@ -839,7 +840,8 @@ function! s:MapKeys()
     nmap <nowait> <buffer> <2-leftmouse>    <Plug>(BufExplorer_OpenBuffer)
     nmap <nowait> <buffer> <CR>             <Plug>(BufExplorer_OpenBuffer)
     nmap <nowait> <buffer> i             <Plug>(BufExplorer_ToggleHelp)
-    nmap <nowait> <buffer> c           <Plug>(BufExplorer_OpenBufferTab)
+    nmap <nowait> <buffer> c           <Plug>(BufExplorer_OpenBufferTabRight)
+    nmap <nowait> <buffer> C           <Plug>(BufExplorer_OpenBufferTabLeft)
     nmap <nowait> <buffer> <M-p>a                <Plug>(BufExplorer_ToggleFindActive)
     nmap <nowait> <buffer> <M-p>b                <Plug>(BufExplorer_OpenBufferAsk)
     nmap <nowait> <buffer> <M-p>B                <Plug>(BufExplorer_ToggleOnlyOneTab)
@@ -1441,7 +1443,9 @@ function! s:SelectBuffer(...)
         if exists("b:displayMode") && b:displayMode == "winmanager"
             let _bufName = expand("#".bufNbr.":p")
 
-            if (a:0 == 1) && (a:1 == "tab")
+            if (a:0 == 1) && (a:1 =~# "^tab-")
+                " NOTE: WinManager, don't know if has open left. So just open
+                " right. Not using WinManager anyway.
                 call WinManagerFileEdit(_bufName, 1)
             else
                 call WinManagerFileEdit(_bufName, 0)
@@ -1459,7 +1463,7 @@ function! s:SelectBuffer(...)
             execute "keepjumps keepalt silent b!" bufNbr
 
         " Are we supposed to open the selected buffer in a tab?
-        elseif (a:0 == 1) && (a:1 == "tab")
+        elseif (a:0 == 1) && (a:1 =~# "^tab-")
             call s:Close()
 
             " Open a new tab with the selected buffer in it.
@@ -1468,6 +1472,10 @@ function! s:SelectBuffer(...)
                 execute "$tab split +buffer" . bufNbr
             else
                 execute "999tab split +buffer" . bufNbr
+            endif
+            " Shift to the left if opening with tab-left.
+            if a:1 == "tab-left"
+                tabmove -1
             endif
         " Are we supposed to open the selected buffer in a split?
         elseif (a:0 == 2) && (a:1 == "split")
