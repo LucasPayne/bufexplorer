@@ -93,7 +93,7 @@ if v:version < 704
     finish
 endif
 
-let s:use_bbye_commands = 1
+let s:use_bbye_commands = 0
 
 function! s:UseBbyeBufferCommands()
     return g:loaded_bbye && s:use_bbye_commands
@@ -210,6 +210,7 @@ let s:bufExplorerBuffer = 0
 let s:running = 0
 let s:sort_by = ["number", "name", "fullpath", "mru", "extension"]
 let s:didSplit = 0
+let s:view = v:null
 
 " Setup the autocommands that handle stuff. {{{2
 augroup BufExplorer
@@ -699,6 +700,11 @@ function! BufExplorer(...)
         return
     endif
 
+    " Save view before going to bufexplorer.
+    " If this is not v:null when bufexplorer is closed, the winrestview will
+    " be used to restore this view.
+    let s:view = winsaveview()
+
     let [tabNbr, winNbr] = s:FindBufExplorer()
     if tabNbr > 0
         execute 'keepjumps ' . tabNbr . 'tabnext'
@@ -758,6 +764,9 @@ function! BufExplorer(...)
 
         " Remember that a split was triggered
         let s:didSplit = 1
+
+        " Splitting, so don't return to view.
+        let s:view = v:null
     endif
 
     if !exists("b:displayMode") || b:displayMode != "winmanager"
@@ -1731,6 +1740,10 @@ function! s:Close()
         for b in reverse(listed[0:1])
             execute "keepjumps silent b ".b
         endfor
+        if s:view != v:null
+            call winrestview(s:view)
+            let s:view = v:null
+        endif
     endif
 
     " Clear any messages.
