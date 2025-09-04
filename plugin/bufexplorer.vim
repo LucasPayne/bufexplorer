@@ -1200,9 +1200,13 @@ function! s:BuildBufferList()
         endif
 
         " Ensure buffer details are computed for this buffer.
-        if !has_key(buf, 'fullpath')
-            call s:CalculateBufferDetails(buf)
-        endif
+        " if !has_key(buf, 'fullpath')
+        "     call s:CalculateBufferDetails(buf)
+        " endif
+        " edit: Instead, always recalculate details.
+        " It might be more computation, but avoids bugs and brings closer to
+        " the live view I want.
+        call s:CalculateBufferDetails(buf)
 
         " Skip 'No Name' buffers if we are not to show them.
         if g:bufExplorerShowNoName == 0 && buf.hasNoName
@@ -1398,7 +1402,7 @@ function! s:JobSignal(signal)
         echomsg "Success: ".kill_command
     endif
 
-    call BufExplorer_Refresh()
+    call BufExplorer_redisplay()
 endfunction
 
 " SelectBuffer {{{2
