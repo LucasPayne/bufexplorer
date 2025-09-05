@@ -1791,10 +1791,6 @@ function! s:Close()
         for b in reverse(listed[0:1])
             execute "keepjumps silent b ".b
         endfor
-        if s:view != v:null
-            call winrestview(s:view)
-            let s:view = v:null
-        endif
     endif
 
     " Clear any messages.
