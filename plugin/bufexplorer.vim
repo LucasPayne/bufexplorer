@@ -136,34 +136,6 @@ function! s:VimCommandDeleteBuffer(mode, bufNbr)
         execute commands[a:mode] a:bufNbr
     endif
 endfunction
-function! s:DeleteCommand()
-    if s:DoesBufferDeletionKeepWindow()
-        return "Bdelete"
-    else
-        return "bdelete"
-    endif
-endfunction
-function! s:ForceDeleteCommand()
-    if s:DoesBufferDeletionKeepWindow()
-        return "Bdelete!"
-    else
-        return "bdelete!"
-    endif
-endfunction
-function! s:WipeCommand()
-    if s:DoesBufferDeletionKeepWindow()
-        return "Bwipe"
-    else
-        return "bwipe"
-    endif
-endfunction
-function! s:ForceWipeCommand()
-    if s:DoesBufferDeletionKeepWindow()
-        return "Bwipe!"
-    else
-        return "bwipe!"
-    endif
-endfunction
 
 " Command actions {{{2
 let s:actions = [
