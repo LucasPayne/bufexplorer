@@ -217,7 +217,7 @@ let s:name = '[BufExplorer]'
 " Buffer number of the BufExplorer window.
 let s:bufExplorerBuffer = 0
 let s:running = 0
-let s:sort_by = ["number", "name", "fullpath", "mru", "extension"]
+let s:sort_by = ["number", "name", "fullpath", "layout", "mru", "extension"]
 let s:didSplit = 0
 let s:view = v:null
 let g:bufexplorer_from_bufnr = -1
@@ -252,6 +252,18 @@ let s:tabIdCounter = 0
 " Retrieve the `tabId` for the given tab (or '' if the tab has no `tabId`).
 function! s:GetTabId(tabNbr)
     return gettabvar(a:tabNbr, 'bufexp_tabId', '')
+endfunction
+
+" GetTabPageNrFromTabId {{{2
+" Retrieve the tab page number for a given tab id (or -1 if no tab with that tab id found)
+function! s:GetTabPageNrFromTabId(tabId)
+    for tab in range(1, tabpagenr('$'))
+        let check_tabId = gettabvar(tab, 'bufexp_tabId', '')
+        if check_tabId != '' && check_tabId == a:tabId
+            return tab
+        endif
+    endfor
+    return -1
 endfunction
 
 " MRU data structure {{{2
@@ -1046,6 +1058,26 @@ function! s:CalculateBufferDetails(buf)
     let buf = a:buf
     let buf.number = string(buf.bufNbr)
     let buf.indicators = substitute(buf.numberindicators, '^\s*\d*', '', '')
+    let buf.hidden = stridx(buf.indicators, 'h') != -1
+
+    " indicators_modified_with_tab column
+    " This takes e.g. "%aR" and changes it to "%2R" if most recently used visible tab was 2.
+    " "hR" maps to " R", e.g. not visible in a tab.
+    let buf.indicators_modified_with_tab = buf.indicators
+    let tabId = s:MRUTabForBuf(a:buf.bufNbr)
+    if stridx(buf.indicators, 'h') != -1 || tabId == s:tabIdHead
+        " No tab indicator if hidden.
+        let buf.indicators_modified_with_tab = substitute(buf.indicators, 'h', " ", '')
+    else
+        let tab = s:GetTabPageNrFromTabId(tabId)
+        if tab != -1
+            let str = tab
+        else
+            let str = " "
+        endif
+        let buf.indicators_modified_with_tab = substitute(buf.indicators, 'a', str, '')
+    endif
+
     let rawpath = bufname(buf.bufNbr)
     let buf["hasNoName"] = empty(rawpath)
     if buf.hasNoName
@@ -1230,8 +1262,7 @@ function! s:GetBufferInfo(onlyBufNbr)
         " filename with an embedded '"' is present.
         let buf = {
                 \ "numberindicators": bits[0],
-                \ "line": substitute(bits[-1],
-                \ '\s*', '', '')
+                \ "line": substitute(bits[-1], '\s*', '', '')
                 \}
         let buf.bufNbr = str2nr(buf.numberindicators)
         let all[buf.bufNbr] = buf
@@ -1338,6 +1369,7 @@ function! s:GetColumns()
             \ 'homerelpath',
             \ 'icon',
             \ 'indicators',
+            \ 'indicators_modified_with_tab',
             \ 'line',
             \ 'name',
             \ 'number',
@@ -1387,10 +1419,9 @@ endfunction
 " Implemented as a function so that users may modify the returned list.
 function! BufExplorer_defaultColumns()
     let defaultColumns = [
-            \   'numberindicators',
+            \   'indicators_modified_with_tab',
             \   'icon',
-            \   'splittablepath',
-            \   'line',
+            \   'splittablepath'
             \ ]
     return defaultColumns
 endfunction
@@ -1881,6 +1912,29 @@ function! s:Key_extension(buf)
     return key
 endfunction
 
+" Key_layout {{{2
+function! s:Key_layout(buf)
+
+    " Sort terminals last
+    if a:buf.isterminal
+        let trailing_key = "B"
+    else
+        let trailing_key = "A"
+    endif
+
+    let tabId = s:MRUTabForBuf(a:buf.bufNbr)
+    if tabId == s:tabIdHead
+        " 20 '9's, sort last as number
+        return ['99999999999999999999', trailing_key]
+    endif
+    let tab = s:GetTabPageNrFromTabId(tabId)
+    if tab == -1 || a:buf.hidden
+        " 20 '9's, sort last as number
+        return ['99999999999999999999', trailing_key]
+    endif
+    return [printf('%020d', tab), trailing_key]
+endfunction
+
 " Key_mru {{{2
 function! s:Key_mru(buf)
     let pos = s:MRUOrderForBuf(a:buf.bufNbr)
@@ -2136,7 +2190,7 @@ call s:Set("g:bufExplorerShowRelativePath", 0)          " Show listings with rel
 call s:Set("g:bufExplorerShowTabBuffer", 0)             " Show only buffer(s) for this tab?
 call s:Set("g:bufExplorerShowUnlisted", 0)              " Show unlisted buffers?
 call s:Set("g:bufExplorerShowNoName", 0)                " Show 'No Name' buffers?
-call s:Set("g:bufExplorerSortBy", "mru")                " Sorting methods are in s:sort_by:
+call s:Set("g:bufExplorerSortBy", "layout")             " Sorting methods are in s:sort_by:
 call s:Set("g:bufExplorerSplitBelow", &splitbelow)      " Should horizontal splits be below or above current window?
 call s:Set("g:bufExplorerSplitOutPathName", 1)          " Split out path and file name?
 call s:Set("g:bufExplorerSplitRight", &splitright)      " Should vertical splits be on the right or left of current window?
