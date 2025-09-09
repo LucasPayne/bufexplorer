@@ -588,10 +588,15 @@ endfunction
 
 " ShouldIgnore {{{2
 function! s:ShouldIgnore(buf)
-    " Ignore temporary buffers with buftype set.
-    if empty(getbufvar(a:buf, "&buftype")) == 0
-        return 1
-    endif
+    " edit:
+    "     Commented this out.
+    "     I am putting MRU data in the display, so all buffers which can
+    "     display in bufexplorer should have MRU data.
+    "     This includes buffers with buftype set, like help buffers.
+    " " Ignore temporary buffers with buftype set.
+    " if empty(getbufvar(a:buf, "&buftype")) == 0
+    "     return 1
+    " endif
 
     " Ignore the BufExplorer buffer.
     if fnamemodify(bufname(a:buf), ":t") == s:name
@@ -1067,7 +1072,7 @@ function! s:CalculateBufferDetails(buf)
     let tabId = s:MRUTabForBuf(a:buf.bufNbr)
     if stridx(buf.indicators, 'h') != -1 || tabId == s:tabIdHead
         " No tab indicator if hidden.
-        let buf.indicators_modified_with_tab = substitute(buf.indicators, 'h', " ", '')
+        let buf.indicators_modified_with_tab = substitute(buf.indicators, 'h', ' ', '')
     else
         let tab = s:GetTabPageNrFromTabId(tabId)
         if tab != -1
