@@ -121,6 +121,24 @@ function! s:VimCommandDeleteBuffer(mode, bufNbr)
         \ 'force_wipe' : 'bwipe!',
         \}
     if bufwin > 0
+        " Delete the buffer without changing layout.
+        " If open in a window, that window is replaced by an empty file.
+        " This is done by saving the view layout,
+        " switching to the buffer's window, opening another open buffer in it
+        " then deleting the target buffer.
+        " This avoid's vim's behaviour of always deleting windows which have a
+        " buffer being deleted in them.
+        " NOTE:
+        "     Currently this still deletes windows, except the first one
+        "     found, if the buffer is open in multiple windows.
+        "     I don't really use that capability much right now, so minor TODO.
+        " NOTE:
+        "     This assumes there is another buffer to open in order to do the trick.
+        "     This means that if I have two tabs open, one with an open buffer
+        "     and another with an empty file, then delete the buffer, that buffer's tab will be
+        "     deleted.
+        "     This isn't really an important exception, I don't think it will
+        "     be troublesome, but a minor TODO.
         let curtab = tabpagenr()
         let curwin = winnr()
         let view = winsaveview()
