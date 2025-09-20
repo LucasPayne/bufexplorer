@@ -653,6 +653,13 @@ function! s:Cleanup()
     let s:didSplit = 0
     let g:bufexplorer_from_bufnr = -1
 
+    " cursorline is actually window-local when using :setlocal.
+    " See :help setlocal, it depends on the option whether this makes it
+    " buffer-local or window-local.
+    " So, unset it here (s:Cleanup is triggered by BufWinLeave, before the
+    " window is closed, so this works).
+    setlocal nocursorline
+
     delmarks!
 endfunction
 
