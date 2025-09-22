@@ -18,3 +18,33 @@ Looks like there is a length limit to <Plug> names.
 - Is this noted in the vim docs?
 I get an error (a generic nnoremap parameter error) with this name, but not if I shorten it.
 - Workaround: Shortened OpenBufferOriginalWindow to OBOW.
+
+popup
+.
+: Will support to open in a popup windows? #105
+https://github.com/jlanzarotta/bufexplorer/issues/105
+Issue in 2022
+Discussion in  2025
+.
+    A Neovim floating window appears to work like a regular window that floats,
+    whereas a Vim popup window isn't generally intended to receive keystrokes and
+    cannot receive keyboard focus. Vim does have an exception for running a
+    terminal in a popup window, where the popup window can receive keystrokes that
+    are then sent to the terminal, but as BufExplorer doesn't run in a terminal,
+    this feature doesn't appear to help. In addition, Vim's popup window support
+    was added in Vim 8; because BufExplorer supports Vim 7.4 and newer, the current
+    method of operation would need to be kept in addition to any support for popup
+    or floating windows. I haven't looked at these different options at length, but
+    at first glance Vim popup windows don't seem like a good match for BufExplorer
+    functionality.
+.
+DrMikeHenry suggests a similar benefit could be gained from launching BufExplorer in a new tab.
+.
+This could be done with just creating a new tab, but bufexplorer will then fail to remember the launcher window,
+because it will instead be the new tab's empty file.
+.
+commands BufExplorer, BufExplorerVertical, BufExplorerHorizontalSplit
+Can add BufExplorerTab.
+
+/home/lucas/config/vim/repos/bufexplorer/plugin/bufexplorer.vim 174
+/home/lucas/config/vim/repos/bufexplorer/plugin/bufexplorer.vim 735

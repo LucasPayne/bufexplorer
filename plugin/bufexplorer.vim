@@ -62,6 +62,7 @@
 "                 ":ToggleBufExplorer"          - Opens/Closes BufExplorer
 "                 ":BufExplorerHorizontalSplit" - Opens horizontally window BufExplorer
 "                 ":BufExplorerVerticalSplit"   - Opens vertically split window BufExplorer
+"                 ":BufExplorerTab"             - Opens a new tab with BufExplorer
 "
 "               For more help see supplied documentation.
 "      History: See supplied documentation.
@@ -159,6 +160,7 @@ let s:actions = [
         \ 'below',
         \ 'left',
         \ 'right',
+        \ 'tab',
         \ ]
 
 " Command-line completion function for `s:actions`.
@@ -173,6 +175,7 @@ command! -nargs=? -complete=custom,<SID>ActionArgs
         \ ToggleBufExplorer :call ToggleBufExplorer(<f-args>)
 command! BufExplorerHorizontalSplit :call BufExplorerHorizontalSplit()
 command! BufExplorerVerticalSplit :call BufExplorerVerticalSplit()
+command! BufExplorerTab :call BufExplorerTab()
 
 " Set {{{2
 function! s:Set(var, default)
@@ -696,6 +699,11 @@ function! BufExplorerVerticalSplit()
     call BufExplorer('vsplit')
 endfunction
 
+" BufExplorerTab {{{2
+function! BufExplorerTab()
+    call BufExplorer('tab')
+endfunction
+
 " ToggleBufExplorer {{{2
 " Args: `([action])`
 " Optional `action` argument must be taken from `s:actions`.  If not present,
@@ -793,6 +801,7 @@ function! BufExplorer(...)
             \ 'below'   : ['split', 1, splitright],
             \ 'left'    : ['vsplit', splitbelow, 0],
             \ 'right'   : ['vsplit', splitbelow, 1],
+            \ 'tab'     : ['tabnew', splitbelow, splitright],
             \ 'current' : ['', splitbelow, splitright],
             \}
     let [splitMode, splitbelow, splitright] = actionMap[action]
@@ -806,8 +815,10 @@ function! BufExplorer(...)
         let [&splitbelow, &splitright] = [splitbelow, splitright]
         let size = splitMode == 'split' ? g:bufExplorerSplitHorzSize : g:bufExplorerSplitVertSize
         let cmd = 'keepalt '
-        if size > 0
-            let cmd .= size
+        if action != 'tab'
+            if size > 0
+                let cmd .= size
+            endif
         endif
         let cmd .= splitMode
         execute cmd
@@ -2252,6 +2263,10 @@ endif
 
 if !hasmapto('BufExplorerVerticalSplit') && g:bufExplorerDisableDefaultKeyMapping == 0
     nnoremap <script> <silent> <unique> <Leader>bv :BufExplorerVerticalSplit<CR>
+endif
+
+if !hasmapto('BufExplorerTab') && g:bufExplorerDisableDefaultKeyMapping == 0
+    nnoremap <script> <silent> <unique> <Leader>bn :BufExplorerTab<CR>
 endif
 
 " vim:ft=vim foldmethod=marker sw=4
