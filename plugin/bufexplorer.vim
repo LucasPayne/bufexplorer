@@ -93,12 +93,6 @@ if v:version < 704
     finish
 endif
 
-let s:does_buffer_deletion_keep_window = 1
-function! s:DoesBufferDeletionKeepWindow()
-    "return s:does_buffer_deletion_keep_window && g:loaded_bbye
-    return s:does_buffer_deletion_keep_window
-endfunction
-
 function! s:VimCommandDeleteBuffer(mode, bufNbr)
     " Easier: Assume the buffer is only open in one window, if any.
     let buftab = -1
@@ -121,6 +115,24 @@ function! s:VimCommandDeleteBuffer(mode, bufNbr)
         \ 'force_wipe' : 'bwipe!',
         \}
     if bufwin > 0
+        " Delete the buffer without changing layout.
+        " If open in a window, that window is replaced by an empty file.
+        " This is done by saving the view layout,
+        " switching to the buffer's window, opening another open buffer in it
+        " then deleting the target buffer.
+        " This avoid's vim's behaviour of always deleting windows which have a
+        " buffer being deleted in them.
+        " NOTE:
+        "     Currently this still deletes windows, except the first one
+        "     found, if the buffer is open in multiple windows.
+        "     I don't really use that capability much right now, so minor TODO.
+        " NOTE:
+        "     This assumes there is another buffer to open in order to do the trick.
+        "     This means that if I have two tabs open, one with an open buffer
+        "     and another with an empty file, then delete the buffer, that buffer's tab will be
+        "     deleted.
+        "     This isn't really an important exception, I don't think it will
+        "     be troublesome, but a minor TODO.
         let curtab = tabpagenr()
         let curwin = winnr()
         let view = winsaveview()
@@ -201,6 +213,7 @@ endfunction
 "
 " `rawpath` is the path as returned from `:buffers`; as such, buffers lacking
 " any name are represented as `[No Name]`.
+" EDIT: Not necessarily [No Name].
 "
 " Thus, for a buffer:
 " - `rawpath` is the path as returned from `:buffers`.
@@ -639,6 +652,13 @@ function! s:Cleanup()
     let s:running = 0
     let s:didSplit = 0
     let g:bufexplorer_from_bufnr = -1
+
+    " cursorline is actually window-local when using :setlocal.
+    " See :help setlocal, it depends on the option whether this makes it
+    " buffer-local or window-local.
+    " So, unset it here (s:Cleanup is triggered by BufWinLeave, before the
+    " window is closed, so this works).
+    setlocal nocursorline
 
     delmarks!
 endfunction
@@ -1104,7 +1124,7 @@ function! s:CalculateBufferDetails(buf)
     let rawpath = bufname(buf.bufNbr)
     let buf["hasNoName"] = empty(rawpath)
     if buf.hasNoName
-        let rawpath = "[No Name]"
+        let rawpath = "(empty)"
         let buf.isdir = 0
     else
         let buf.isdir = getftype(rawpath) == 'dir'
@@ -2208,7 +2228,7 @@ call s:Set("g:bufExplorerShowDirectories", 1)           " (Dir's are added by co
 call s:Set("g:bufExplorerShowRelativePath", 0)          " Show listings with relative or absolute paths?
 call s:Set("g:bufExplorerShowTabBuffer", 0)             " Show only buffer(s) for this tab?
 call s:Set("g:bufExplorerShowUnlisted", 0)              " Show unlisted buffers?
-call s:Set("g:bufExplorerShowNoName", 0)                " Show 'No Name' buffers?
+call s:Set("g:bufExplorerShowNoName", 1)                " Show 'No Name' buffers?
 call s:Set("g:bufExplorerSortBy", "layout")             " Sorting methods are in s:sort_by:
 call s:Set("g:bufExplorerSplitBelow", &splitbelow)      " Should horizontal splits be below or above current window?
 call s:Set("g:bufExplorerSplitOutPathName", 1)          " Split out path and file name?
