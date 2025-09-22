@@ -236,6 +236,7 @@ let s:running = 0
 let s:sort_by = ["number", "name", "fullpath", "layout", "mru", "extension"]
 let s:didSplit = 0
 let s:view = v:null
+let s:launcher_winid = 0
 let g:bufexplorer_from_bufnr = -1
 
 " Setup the autocommands that handle stuff. {{{2
@@ -654,6 +655,7 @@ function! s:Cleanup()
 
     let s:running = 0
     let s:didSplit = 0
+    let s:didTab = 0
     let g:bufexplorer_from_bufnr = -1
 
     " cursorline is actually window-local when using :setlocal.
@@ -760,6 +762,7 @@ function! BufExplorer(...)
     " If this is not v:null when bufexplorer is closed, the winrestview will
     " be used to restore this view.
     let s:view = winsaveview()
+    let s:launcher_winid = win_getid()
     " Save the buffer number globally.
     " This can be used by other UI config (such as in vimrc) to display
     " context, such as [BufExplorer from {name}] instead of [BufExplorer] in
@@ -801,7 +804,7 @@ function! BufExplorer(...)
             \ 'below'   : ['split', 1, splitright],
             \ 'left'    : ['vsplit', splitbelow, 0],
             \ 'right'   : ['vsplit', splitbelow, 1],
-            \ 'tab'     : ['tabnew', splitbelow, splitright],
+            \ 'tab'     : ['', splitbelow, splitright],
             \ 'current' : ['', splitbelow, splitright],
             \}
     let [splitMode, splitbelow, splitright] = actionMap[action]
@@ -815,10 +818,8 @@ function! BufExplorer(...)
         let [&splitbelow, &splitright] = [splitbelow, splitright]
         let size = splitMode == 'split' ? g:bufExplorerSplitHorzSize : g:bufExplorerSplitVertSize
         let cmd = 'keepalt '
-        if action != 'tab'
-            if size > 0
-                let cmd .= size
-            endif
+        if size > 0
+            let cmd .= size
         endif
         let cmd .= splitMode
         execute cmd
@@ -828,9 +829,11 @@ function! BufExplorer(...)
 
         " Remember that a split was triggered
         let s:didSplit = 1
-
-        " Splitting, so don't return to view.
-        let s:view = v:null
+    elseif action == 'tab'
+        keepalt $tabnew
+        
+        " Remember that a tab was triggered
+        let s:didTab = 1
     endif
 
     if !exists("b:displayMode") || b:displayMode != "winmanager"
@@ -1669,7 +1672,6 @@ function! s:SelectBuffer(...)
             execute "keepjumps keepalt silent b!" bufNbr
             if s:view != v:null
                 call winrestview(s:view)
-                let s:view = v:null
             endif
         endif
 
@@ -1832,12 +1834,19 @@ function! s:Close()
     " If we needed to split the main window, close the split one.
     if s:didSplit
         execute "wincmd c"
+        call win_gotoid(s:launcher_winid)
+        call winrestview(s:view)
         " After closing the BufExplorer split, we expect to be back on the
         " tab from which we launched; if so, make sure we also return to the
         " window from which we launched.
         if s:MRUEnsureTabId(tabpagenr()) == s:tabIdAtLaunch
             execute s:windowAtLaunch . "wincmd w"
         endif
+    " If we needed to tab the main window, close the tab.
+    elseif s:didTab
+        execute "wincmd c"
+        call win_gotoid(s:launcher_winid)
+        call winrestview(s:view)
     endif
 
     " Check to see if there are anymore buffers listed.
