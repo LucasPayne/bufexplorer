@@ -887,18 +887,31 @@ function! s:MapKeys()
     nnoremap <silent> <buffer> <Plug>(BufExplorer_BufferWipe)               :call <SID>RemoveBuffer("wipe")<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_BufferWipeForced)         :call <SID>RemoveBuffer("force_wipe")<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_Close)                    :call <SID>Close()<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBuffer)               :call <SID>SelectBuffer()<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferAsk)            :call <SID>SelectBuffer("ask")<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferOriginalWindow) :call <SID>SelectBuffer("original_window")<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitAbove)     :call <SID>SelectBuffer("split", "st")<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitBelow)     :call <SID>SelectBuffer("split", "sb")<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitLeft)      :call <SID>SelectBuffer("split", "vl")<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitRight)     :call <SID>SelectBuffer("split", "vr")<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferTabRight)            :call <SID>SelectBuffer("tab-right")<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferTabLeft)            :call <SID>SelectBuffer("tab-left")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBuffer)               :call <SID>SelectBuffer(0)<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferAsk)            :call <SID>SelectBuffer(0, "ask")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferOriginalWindow) :call <SID>SelectBuffer(0, "original_window")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitAbove)     :call <SID>SelectBuffer(0, "split", "st")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitBelow)     :call <SID>SelectBuffer(0, "split", "sb")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitLeft)      :call <SID>SelectBuffer(0, "split", "vl")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitRight)     :call <SID>SelectBuffer(0, "split", "vr")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferTabRight)            :call <SID>SelectBuffer(0, "tab-right")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferTabLeft)            :call <SID>SelectBuffer(0, "tab-left")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBuffer_FindActive)               :call <SID>SelectBuffer(1)<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferAsk_FindActive)            :call <SID>SelectBuffer(1, "ask")<CR>
+    " Note:
+    "     Looks like there is a length limit to <Plug> names.
+    "     - Is this noted in the vim docs?
+    "     I get an error (a generic nnoremap parameter error) with this name, but not if I shorten it.
+    "     - Workaround: Shortened OpenBufferOriginalWindow to OBOW.
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OBOW_FindActive) :call <SID>SelectBuffer(1, "original_window")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitAbove_FindActive)     :call <SID>SelectBuffer(1, "split", "st")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitBelow_FindActive)     :call <SID>SelectBuffer(1, "split", "sb")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitLeft_FindActive)      :call <SID>SelectBuffer(1, "split", "vl")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferSplitRight_FindActive)     :call <SID>SelectBuffer(1, "split", "vr")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferTabRight_FindActive)       :call <SID>SelectBuffer(1, "tab-right")<CR>
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferTabLeft_FindActive)        :call <SID>SelectBuffer(1, "tab-left")<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_SortByNext)               :call <SID>SortSelect()<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_SortByPrev)               :call <SID>ReverseSortSelect()<CR>
-    nnoremap <silent> <buffer> <Plug>(BufExplorer_ToggleFindActive)         :call <SID>ToggleFindActive()<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_ToggleHelp)               :call <SID>ToggleHelp()<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_ToggleOnlyOneTab)         :call <SID>ToggleOnlyOneTab()<CR>
     nnoremap <silent> <buffer> <Plug>(BufExplorer_ToggleReverseSort)        :call <SID>SortReverse()<CR>
@@ -914,23 +927,32 @@ function! s:MapKeys()
     nnoremap <silent> <buffer> <Plug>(BufExplorer_JobSignalHUP)             :call <SID>JobSignal("HUP")<CR>
 
     if exists("b:displayMode") && b:displayMode == "winmanager"
-        nnoremap <buffer> <silent> <tab> :call <SID>SelectBuffer()<CR>
+        nnoremap <buffer> <silent> <tab> :call <SID>SelectBuffer(0)<CR>
     endif
 
-    nmap <nowait> <buffer> <2-leftmouse>    <Plug>(BufExplorer_OpenBuffer)
-    nmap <nowait> <buffer> <CR>             <Plug>(BufExplorer_OpenBuffer)
-    nmap <nowait> <buffer> i             <Plug>(BufExplorer_ToggleHelp)
-    nmap <nowait> <buffer> c           <Plug>(BufExplorer_OpenBufferTabRight)
-    nmap <nowait> <buffer> C           <Plug>(BufExplorer_OpenBufferTabLeft)
-    nmap <nowait> <buffer> ra                <Plug>(BufExplorer_ToggleFindActive)
+    " Note: Name shortened due to <Plug> character limit see note above.
+    nmap <nowait> <buffer> <CR>             <Plug>(BufExplorer_OBOW_FindActive)
+    nmap <nowait> <buffer> c           <Plug>(BufExplorer_OpenBufferTabRight_FindActive)
+    nmap <nowait> <buffer> C           <Plug>(BufExplorer_OpenBufferTabLeft_FindActive)
+    nmap <nowait> <buffer> o                <Plug>(BufExplorer_OpenBufferSplitBelow_FindActive)
+    nmap <nowait> <buffer> O                <Plug>(BufExplorer_OpenBufferSplitAbove_FindActive)
+    nmap <nowait> <buffer> A                <Plug>(BufExplorer_OpenBufferSplitRight_FindActive)
+    nmap <nowait> <buffer> I                <Plug>(BufExplorer_OpenBufferSplitLeft_FindActive)
+
+    nmap <nowait> <buffer> r<CR>             <Plug>(BufExplorer_OpenBufferOriginalWindow)
+    nmap <nowait> <buffer> rc           <Plug>(BufExplorer_OpenBufferTabRight)
+    nmap <nowait> <buffer> rC           <Plug>(BufExplorer_OpenBufferTabLeft)
+    nmap <nowait> <buffer> ro                <Plug>(BufExplorer_OpenBufferSplitBelow)
+    nmap <nowait> <buffer> rO                <Plug>(BufExplorer_OpenBufferSplitAbove)
+    nmap <nowait> <buffer> rA                <Plug>(BufExplorer_OpenBufferSplitRight)
+    nmap <nowait> <buffer> rI                <Plug>(BufExplorer_OpenBufferSplitLeft)
+
     nmap <nowait> <buffer> rb                <Plug>(BufExplorer_OpenBufferAsk)
+
+    nmap <nowait> <buffer> i             <Plug>(BufExplorer_ToggleHelp)
     nmap <nowait> <buffer> rB                <Plug>(BufExplorer_ToggleOnlyOneTab)
     nmap <nowait> <buffer> d                <Plug>(BufExplorer_BufferDelete)
     nmap <nowait> <buffer> D                <Plug>(BufExplorer_BufferWipe)
-    nmap <nowait> <buffer> o                <Plug>(BufExplorer_OpenBufferSplitBelow)
-    nmap <nowait> <buffer> O                <Plug>(BufExplorer_OpenBufferSplitAbove)
-    nmap <nowait> <buffer> ro                <Plug>(BufExplorer_OpenBuffer)
-    nmap <nowait> <buffer> rO                <Plug>(BufExplorer_OpenBufferOriginalWindow)
     nmap <nowait> <buffer> rp                <Plug>(BufExplorer_ToggleSplitOutPathName)
     nmap <nowait> <buffer> q                <Plug>(BufExplorer_Close)
     nmap <nowait> <buffer> rr                <Plug>(BufExplorer_ToggleReverseSort)
@@ -939,8 +961,6 @@ function! s:MapKeys()
     nmap <nowait> <buffer> rS                <Plug>(BufExplorer_SortByPrev)
     nmap <nowait> <buffer> rT                <Plug>(BufExplorer_ToggleShowTabBuffer)
     nmap <nowait> <buffer> ru                <Plug>(BufExplorer_ToggleShowUnlisted)
-    nmap <nowait> <buffer> A                <Plug>(BufExplorer_OpenBufferSplitRight)
-    nmap <nowait> <buffer> I                <Plug>(BufExplorer_OpenBufferSplitLeft)
     nmap <nowait> <buffer> rX                <Plug>(BufExplorer_ToggleShowTerminal)
     nmap <nowait> <buffer> xx                <Plug>(BufExplorer_JobSignalSTOP)
     nmap <nowait> <buffer> xc                <Plug>(BufExplorer_JobSignalCONT)
@@ -982,8 +1002,7 @@ endfunction
 " GetHelpStatus {{{2
 function! s:GetHelpStatus()
     let ret = '[Sorted by '.((g:bufExplorerReverseSort == 1) ? "reverse " : "").g:bufExplorerSortBy
-    let ret .= ' | '.((g:bufExplorerFindActive == 0) ? "Don't " : "")."Locate buffer"
-    let ret .= ((g:bufExplorerShowUnlisted == 0) ? "" : " | Show unlisted")
+    let ret .= ' | '.((g:bufExplorerShowUnlisted == 0) ? "" : " | Show unlisted")
     let ret .= ((g:bufExplorerShowTabBuffer == 0) ? "" : " | Show buffers/tab")
     let ret .= ((g:bufExplorerOnlyOneTab == 0) ? "" : " | One tab/buffer")
     let ret .= ' | '
@@ -1009,7 +1028,7 @@ function! s:CreateHelp()
     if g:bufExplorerDetailedHelp == 1
         call add(header, '-------------------------------------------------------------')
         call add(header, 'i: Toggle help menu')
-        call add(header, '<enter> or o or Mouse-Double-Click : open buffer under cursor')
+        call add(header, '<enter>: open buffer in the focus file's window')
         call add(header, 'C: open buffer in another tab to the left')
         call add(header, 'c: open buffer in another tab to the right')
         call add(header, 'O : open buffer in another window above the current')
@@ -1030,7 +1049,6 @@ function! s:CreateHelp()
         call add(header, '    r a : toggle find active buffer')
         call add(header, '    r b : Fast buffer switching with b<any bufnum>')
         call add(header, '    r B : toggle showing buffers only on their MRU tabs')
-        call add(header, '    r O : open buffer in original window')
         call add(header, '    r p : toggle splitting of path into name + dir')
         call add(header, '    r R : toggle showing relative paths')
         call add(header, '    r s : cycle thru "sort by" fields '.string(s:sort_by).'')
@@ -1513,22 +1531,25 @@ endfunction
 
 " SelectBuffer {{{2
 " Valid arguments:
-"   `()`                    Open in current window.
-"   `("ask")`               Prompt for buffer, then open in current window.
-"   `("original_window")`   Open in original window.
-"   `("split", "st")`       Open in horizontal split above current window.
-"   `("split", "sb")`       Open in horizontal split below current window.
-"   `("split", "vl")`       Open in vertical split left of current window.
-"   `("split", "vr")`       Open in vertical split right of current window.
-"   `("tab")`               Open in a new tab.
+"   X is 0 or 1, indicating whether to find the active buffer.
+"   `(X)`                      Open in current window.
+"   `(X, "ask")`               Prompt for buffer, then open in current window.
+"   `(X, "original_window")`   Open in original window.
+"   `(X, "split", "st")`       Open in horizontal split above current window.
+"   `(X, "split", "sb")`       Open in horizontal split below current window.
+"   `(X, "split", "vl")`       Open in vertical split left of current window.
+"   `(X, "split", "vr")`       Open in vertical split right of current window.
+"   `(X, "tab-left")`          Open in a new tab to the left.
+"   `(X, "tab-right")`         Open in a new tab to the right.
 function! s:SelectBuffer(...)
     " Sometimes messages are not cleared when we get here so it looks like an
     " error has occurred when it really has not.
     "echo ""
 
     let bufNbr = -1
+    let findActive = a:1
 
-    if (a:0 == 1) && (a:1 == "ask")
+    if (a:0 == 2) && (a:2 == "ask")
         " Ask the user for input.
         call inputsave()
         let cmd = input("Enter buffer number to switch to: ")
@@ -1553,7 +1574,7 @@ function! s:SelectBuffer(...)
         if exists("b:displayMode") && b:displayMode == "winmanager"
             let _bufName = expand("#".bufNbr.":p")
 
-            if (a:0 == 1) && (a:1 =~# "^tab-")
+            if (a:0 == 2) && (a:2 =~# "^tab-")
                 " NOTE: WinManager, don't know if has open left. So just open
                 " right. Not using WinManager anyway.
                 call WinManagerFileEdit(_bufName, 1)
@@ -1571,9 +1592,17 @@ function! s:SelectBuffer(...)
         if exists("g:bufExplorerChgWin") && g:bufExplorerChgWin <=winnr("$")
             execute g:bufExplorerChgWin."wincmd w"
             execute "keepjumps keepalt silent b!" bufNbr
-
+        endif
+            
+        " If the findActive option is set, and the buffer is not hidden,
+        " go to that buffer.
+        if findActive && tabNbr > 0
+            " Close BufExplorer window and switch to existing tab/window.
+            call s:Close()
+            execute tabNbr . "tabnext"
+            execute bufwinnr(bufNbr) . "wincmd w"
         " Are we supposed to open the selected buffer in a tab?
-        elseif (a:0 == 1) && (a:1 =~# "^tab-")
+        elseif (a:0 == 2) && (a:2 =~# "^tab-")
             call s:Close()
 
             " Open a new tab with the selected buffer in it.
@@ -1584,40 +1613,32 @@ function! s:SelectBuffer(...)
                 execute "999tab split +buffer" . bufNbr
             endif
             " Shift to the left if opening with tab-left.
-            if a:1 == "tab-left"
+            if a:2 == "tab-left"
                 tabmove -1
             endif
         " Are we supposed to open the selected buffer in a split?
-        elseif (a:0 == 2) && (a:1 == "split")
+        elseif (a:0 == 3) && (a:2 == "split")
             call s:Close()
-            if (a:2 == "vl")
+            if (a:3 == "vl")
                 execute "vert topleft sb ".bufNbr
-            elseif (a:2 == "vr")
+            elseif (a:3 == "vr")
                 execute "vert belowright sb ".bufNbr
-            elseif (a:2 == "st")
+            elseif (a:3 == "st")
                 execute "topleft sb ".bufNbr
             else " = sb
                 execute "belowright sb ".bufNbr
             endif
         " Are we supposed to open the selected buffer in the original window?
-        elseif (a:0 == 1) && (a:1 == "original_window")
+        elseif (a:0 == 2) && (a:2 == "original_window")
             call s:Close()
             execute s:windowAtLaunch . "wincmd w"
             execute "keepjumps keepalt silent b!" bufNbr
         else
-            " Request to open in current (BufExplorer) window.
-            if g:bufExplorerFindActive && tabNbr > 0
-                " Close BufExplorer window and switch to existing tab/window.
-                call s:Close()
-                execute tabNbr . "tabnext"
-                execute bufwinnr(bufNbr) . "wincmd w"
-            else
-                " Use BufExplorer window for the buffer.
-                execute "keepjumps keepalt silent b!" bufNbr
-                if s:view != v:null
-                    call winrestview(s:view)
-                    let s:view = v:null
-                endif
+            " Use BufExplorer window for the buffer.
+            execute "keepjumps keepalt silent b!" bufNbr
+            if s:view != v:null
+                call winrestview(s:view)
+                let s:view = v:null
             endif
         endif
 
@@ -1859,12 +1880,6 @@ endfunction
 function! s:ToggleShowUnlisted()
     let g:bufExplorerShowUnlisted = !g:bufExplorerShowUnlisted
     call s:RedisplayBufferList()
-endfunction
-
-" ToggleFindActive {{{2
-function! s:ToggleFindActive()
-    let g:bufExplorerFindActive = !g:bufExplorerFindActive
-    call s:UpdateHelpStatus()
 endfunction
 
 " RebuildBufferList {{{2
@@ -2187,7 +2202,6 @@ call s:Set("g:bufExplorerDisableDefaultKeyMapping", 1)  " Disable default key ma
 call s:Set("g:bufExplorerDefaultAction", 'current')     " Default action for `:BufExplorer` with no args.
 call s:Set("g:bufExplorerDefaultHelp", 1)               " Show default help?
 call s:Set("g:bufExplorerDetailedHelp", 0)              " Show detailed help?
-call s:Set("g:bufExplorerFindActive", 1)                " When selecting an active buffer, take you to the window where it is active?
 call s:Set("g:bufExplorerOnlyOneTab", 1)                " Show buffer only on MRU tab? (Applies when `g:bufExplorerShowTabBuffer` is true.)
 call s:Set("g:bufExplorerReverseSort", 0)               " Sort in reverse order by default?
 call s:Set("g:bufExplorerShowDirectories", 1)           " (Dir's are added by commands like ':e .')

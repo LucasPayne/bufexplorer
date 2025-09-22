@@ -1,0 +1,20 @@
+[git controlled]
+
+mappings
+/home/lucas/config/vim/repos/bufexplorer/plugin/bufexplorer.vim 920
+
+SelectBuffer
+/home/lucas/config/vim/repos/bufexplorer/plugin/bufexplorer.vim 1524
+
+Help text
+/home/lucas/config/vim/repos/bufexplorer/plugin/bufexplorer.vim 1006
+
+--
+Problems
+-
+/home/lucas/config/vim/repos/bufexplorer/plugin/bufexplorer.vim 901
+    nnoremap <silent> <buffer> <Plug>(BufExplorer_OpenBufferOriginalWindow_FindActive) :call <SID>SelectBuffer(1, "original_window")<CR>
+Looks like there is a length limit to <Plug> names.
+- Is this noted in the vim docs?
+I get an error (a generic nnoremap parameter error) with this name, but not if I shorten it.
+- Workaround: Shortened OpenBufferOriginalWindow to OBOW.
